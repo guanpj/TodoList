@@ -14,7 +14,8 @@ class TaskRepository(context: Context) {
     private val prefs = context.getSharedPreferences("todo_list", Context.MODE_PRIVATE)
 
     fun loadTask(): List<Task> {
-        val raw = prefs.getString(KEY, "")
+        val raw = prefs.getString(KEY, "") ?: ""
+        if (raw.isEmpty()) return emptyList()
         val array = JSONArray(raw)
         return List(array.length()) { index ->
             val cur = array.getJSONObject(index)

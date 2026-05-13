@@ -1,6 +1,7 @@
 package com.guanpj.me.todolist
 
 import android.os.Bundle
+import android.widget.TextView
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -11,6 +12,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -30,6 +33,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion
 import androidx.compose.ui.Modifier
@@ -71,14 +75,14 @@ fun TodoListApp(viewModel: TaskViewModel = viewModel()) {
             }
         },
         containerColor = MaterialTheme.colorScheme.background) { innerPadding ->
-        HomePage(modifier = Modifier.padding(innerPadding))
+        HomePage(modifier = Modifier.padding(innerPadding), viewModel.list)
     }
 
     if (showDialog) {
         AddTaskDialog(onDismiss = {
             showDialog = false
         }) {
-            //viewModel.addTask(it)
+            viewModel.addTask(it)
             showDialog = false
         }
     }
@@ -136,9 +140,18 @@ fun TitleBar() {
 }
 
 @Composable
-fun HomePage(modifier: Modifier) {
+fun HomePage(
+    modifier: Modifier,
+    taskList: List<Task>
+) {
     Column(modifier = modifier) {
         SummaryStrip(5, 4, 3)
+
+        LazyColumn {
+            items(taskList, key = { it.id }) { task ->
+                Text(text = task.title)
+            }
+        }
     }
 }
 

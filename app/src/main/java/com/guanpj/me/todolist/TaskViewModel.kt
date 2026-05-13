@@ -1,12 +1,13 @@
 package com.guanpj.me.todolist
 
 import android.app.Application
+import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.AndroidViewModel
 
 class TaskViewModel(app: Application) : AndroidViewModel(app) {
 
     val repository = TaskRepository(app)
-    val list = mutableListOf<Task>()
+    val list = mutableStateListOf<Task>()
 
     init {
         list.addAll(repository.loadTask())
@@ -19,6 +20,7 @@ class TaskViewModel(app: Application) : AndroidViewModel(app) {
             id = System.currentTimeMillis(),
             title = title,
         ))
+        save()
     }
 
 
