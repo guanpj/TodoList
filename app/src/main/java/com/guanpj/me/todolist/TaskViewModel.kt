@@ -3,28 +3,28 @@ package com.guanpj.me.todolist
 import android.app.Application
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.AndroidViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 class TaskViewModel(app: Application) : AndroidViewModel(app) {
 
-    val repository = TaskRepository(app)
-    val list = mutableStateListOf<Task>()
+    private val repository = TaskRepository(app)
 
-    init {
-        list.addAll(repository.loadTask())
-    }
+    private val _list = MutableStateFlow(repository.loadTask())
+    val list = _list.asStateFlow()
 
     fun addTask(title: String) {
         val cleanedTitle = title.trim()
         if (cleanedTitle.isEmpty()) return
-        list.add(0, Task(
-            id = System.currentTimeMillis(),
-            title = title,
-        ))
+
+        _list.value = listOf(
+            Task(id = System.currentTimeMillis(), title = title)
+        ) + _list.value
         save()
     }
 
 
     fun save() {
-        repository.saveTask(list)
+        repository.saveTask(_list.value)
     }
 }

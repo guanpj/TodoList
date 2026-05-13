@@ -61,6 +61,8 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun TodoListApp(viewModel: TaskViewModel = viewModel()) {
     var showDialog by remember { mutableStateOf(false) }
+    val taskList by viewModel.list.collectAsStateWithLifecycle()
+
     Scaffold(
         topBar = {
             TitleBar()
@@ -75,7 +77,7 @@ fun TodoListApp(viewModel: TaskViewModel = viewModel()) {
             }
         },
         containerColor = MaterialTheme.colorScheme.background) { innerPadding ->
-        HomePage(modifier = Modifier.padding(innerPadding), viewModel.list)
+        HomePage(modifier = Modifier.padding(innerPadding), taskList)
     }
 
     if (showDialog) {
