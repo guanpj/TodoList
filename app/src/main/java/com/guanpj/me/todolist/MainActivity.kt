@@ -1,17 +1,18 @@
 package com.guanpj.me.todolist
 
 import android.os.Bundle
-import android.widget.TextView
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -19,6 +20,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.MaterialTheme
@@ -35,15 +37,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.Alignment.Companion
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.guanpj.me.todolist.ui.theme.TodoListTheme
-import org.w3c.dom.Text
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -77,7 +79,12 @@ fun TodoListApp(viewModel: TaskViewModel = viewModel()) {
             }
         },
         containerColor = MaterialTheme.colorScheme.background) { innerPadding ->
-        HomePage(modifier = Modifier.padding(innerPadding), taskList)
+        HomePage(
+            modifier = Modifier.padding(innerPadding),
+            taskList = taskList,
+            onToggleTask = viewModel::toggleTask,
+            onDeleteTask = viewModel::deleteTask
+        )
     }
 
     if (showDialog) {
@@ -144,14 +151,68 @@ fun TitleBar() {
 @Composable
 fun HomePage(
     modifier: Modifier,
-    taskList: List<Task>
+    taskList: List<Task>,
+    onToggleTask: (Long) -> Unit,
+    onDeleteTask: (Long) -> Unit
 ) {
     Column(modifier = modifier) {
         SummaryStrip(5, 4, 3)
 
         LazyColumn {
             items(taskList, key = { it.id }) { task ->
-                Text(text = task.title)
+                TaskItem(
+                    task = task,
+                    onCheckedChange = {
+                        onToggleTask(task.id)
+                    },
+                    onDelete = {
+                        onDeleteTask(task.id)
+                    }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun TaskItem(
+    task: Task,
+    onCheckedChange: () -> Unit,
+    onDelete: () -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(8.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
+        elevation = CardDefaults.cardElevation(1.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxSize().padding(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Checkbox(
+                checked = task.isDone,
+                onCheckedChange = { onCheckedChange() }
+            )
+
+            Text(
+                text = task.title,
+                style = MaterialTheme.typography.bodyLarge,
+                textDecoration = if (task.isDone) TextDecoration.LineThrough else TextDecoration.None,
+                color = if (task.isDone) {
+                    MaterialTheme.colorScheme.onSurfaceVariant
+                } else {
+                    MaterialTheme.colorScheme.onSurface
+                },
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f),
+            )
+            Spacer(Modifier.width(8.dp))
+            TextButton(onClick = onDelete) {
+                Text("删除")
             }
         }
     }

@@ -1,7 +1,6 @@
 package com.guanpj.me.todolist
 
 import android.app.Application
-import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.AndroidViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -23,6 +22,17 @@ class TaskViewModel(app: Application) : AndroidViewModel(app) {
         save()
     }
 
+    fun toggleTask(taskId: Long) {
+        _list.value = _list.value.map {
+            if (it.id == taskId) it.copy(isDone = !it.isDone) else it
+        }
+        save()
+    }
+
+    fun deleteTask(taskId: Long) {
+        _list.value = _list.value.filter { it.id != taskId }
+        save()
+    }
 
     fun save() {
         repository.saveTask(_list.value)
