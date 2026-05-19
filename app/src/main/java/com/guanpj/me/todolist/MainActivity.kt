@@ -152,8 +152,8 @@ fun TitleBar() {
 fun HomePage(
     modifier: Modifier,
     taskList: List<Task>,
-    onToggleTask: (Long) -> Unit,
-    onDeleteTask: (Long) -> Unit
+    onToggleTask: (Task) -> Unit,
+    onDeleteTask: (Task) -> Unit
 ) {
     Column(modifier = modifier) {
         SummaryStrip(5, 4, 3)
@@ -163,10 +163,10 @@ fun HomePage(
                 TaskItem(
                     task = task,
                     onCheckedChange = {
-                        onToggleTask(task.id)
+                        onToggleTask(task)
                     },
                     onDelete = {
-                        onDeleteTask(task.id)
+                        onDeleteTask(task)
                     }
                 )
             }
